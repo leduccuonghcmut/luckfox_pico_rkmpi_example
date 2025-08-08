@@ -8,15 +8,15 @@ else()
     return()
 endif()
 
-set(SDK_PATH $ENV{LUCKFOX_SDK_PATH})
+set(SDK_PATH "/home/cuongleduc/buildroot-rv1106/output/build")
 set(GLIBC_COMPILER $ENV{GLIBC_COMPILER})
 if(${LIBC_TYPE} STREQUAL "uclibc")
     if (NOT SDK_PATH)
         message(WARNING "Please Set Luckfox-pico SDK Path. Such as:export LUCKFOX_SDK_PATH=/home/user/luckfox-pico")
         return()
     else()
-        set(CMAKE_C_COMPILER "${SDK_PATH}/tools/linux/toolchain/arm-rockchip830-linux-uclibcgnueabihf/bin/arm-rockchip830-linux-uclibcgnueabihf-gcc")
-        set(CMAKE_CXX_COMPILER "${SDK_PATH}/tools/linux/toolchain/arm-rockchip830-linux-uclibcgnueabihf/bin/arm-rockchip830-linux-uclibcgnueabihf-g++")
+        set(CMAKE_C_COMPILER "${SDK_PATH}/rv1106-ipc-sdk-e1caff31f64cbb1e7dbed793b764bbf1c020d6c7/tools/linux/toolchain/arm-rockchip830-linux-uclibcgnueabihf/bin/arm-rockchip830-linux-uclibcgnueabihf-gcc")
+        set(CMAKE_CXX_COMPILER "${SDK_PATH}/rv1106-ipc-sdk-e1caff31f64cbb1e7dbed793b764bbf1c020d6c7/tools/linux/toolchain/arm-rockchip830-linux-uclibcgnueabihf/bin/arm-rockchip830-linux-uclibcgnueabihf-g++")
     endif()
 elseif(${LIBC_TYPE} STREQUAL "glibc")
     if (NOT GLIBC_COMPILER)
@@ -48,9 +48,13 @@ set(CMAKE_INSTALL_RPATH "$ORIGIN/lib")
 add_definitions(-DRV1106_1103)
 
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib/${LIBC_TYPE})
+set(CMAKE_SYSROOT "/home/cuongleduc/buildroot-rv1106/output/host/arm-buildroot-linux-uclibcgnueabihf/sysroot")
 
+# Set library search paths
+set(CMAKE_LIBRARY_PATH "${CMAKE_SYSROOT}/usr/lib")
+set(CMAKE_INCLUDE_PATH "${CMAKE_SYSROOT}/usr/include")
 #Opencv 4
-set(OpenCV_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib/${LIBC_TYPE}/lib/cmake/opencv4")
+set(OpenCV_DIR "/home/cuongleduc/buildroot-rv1106/output/host/arm-buildroot-linux-uclibcgnueabihf/sysroot/usr/lib/cmake/opencv4")
 find_package(OpenCV REQUIRED)
 #Thread
 set(THREADS_PREFER_PTHREAD_FLAG ON)
@@ -81,6 +85,12 @@ if(${LIBC_TYPE} STREQUAL "uclibc")
                         pthread
                         rtsp
                         rga
+                        opencv_mcc
+                        opencv_dnn  # MCC depends on DNN which needs protobuf
+                        opencv_highgui 
+                        opencv_imgcodecs
+                        opencv_core 
+                        
                         )
 elseif(${LIBC_TYPE} STREQUAL "glibc")
     target_link_libraries(${PROJECT_NAME}
